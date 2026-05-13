@@ -4,7 +4,7 @@
 AI Crypto Quant Research｜Codex辅助加密货币量化研究工具
 
 项目链接：
-https://github.com/xuanfeiw0/ai-crypto-quant-research
+https://github.com/feiji35993/ai-crypto-quant-research
 
 项目描述：
 这是一个本地运行的加密货币量化研究学习 Demo，用于展示从 CSV 行情数据读取、策略信号生成到回测结果输出的基础流程。项目不连接真实交易账户，不提供投资建议，重点展示 AI 工具辅助开发、数据处理意识和项目文档整理能力。
