@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+.DS_Store
+.idea/
+.vscode/
+*.log
+data/raw/
+data/private/
+results/private/
+*.sqlite
+*.db
+
+# Local generated files
+*.tmp
+*.bak
+
+# Large or private research artifacts
+data/*.zip
+data/*.parquet
+results/*.parquet
