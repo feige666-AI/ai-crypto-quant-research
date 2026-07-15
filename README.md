@@ -85,8 +85,8 @@ ai-crypto-quant-research/
 
 建议使用虚拟环境，但当前 Demo 没有强制第三方依赖。
 
-```powershell
-cd D:\PPT\ai-crypto-quant-research
+```git clone <repository-url>
+cd ai-crypto-quant-research
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
