@@ -1,2 +1,3 @@
-# 当前演示版只使用 Python 标准库，无强制第三方依赖。
-# 保留此文件是为了让 GitHub 仓库具备清晰的 Python 项目入口。
+# 兼容习惯使用 requirements.txt 的读者。
+# 依赖版本的唯一来源是 pyproject.toml，避免两处配置互相矛盾。
+-e .

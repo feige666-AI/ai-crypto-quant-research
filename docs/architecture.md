@@ -1,71 +1,64 @@
 # 架构说明
 
-## 项目定位
+## 设计目标
 
-本项目是一个本地运行的加密货币量化研究学习 Demo，用于展示数据处理、策略拆解、回测输出和文档整理能力。当前不接入真实交易所，不保存真实账户信息，不执行真实交易。
+项目用尽量少的概念展示一条完整研究链路：本地合成数据进入严格校验，生成简单均线信号，经过只做多教学回测，最后导出可检查的表格、摘要和图表。
 
-## 数据流
-
-```text
-data/sample_data.csv
-    ↓
-data_loader.py
-读取 CSV，校验字段，转换为 PriceBar
-    ↓
-strategy.py
-计算移动平均线，生成 Signal
-    ↓
-backtest.py
-执行简单多头回测，生成资金曲线和摘要
-    ↓
-results/
-保存 backtest_result_sample.csv 和 backtest_summary_sample.json
-    ↓
-README / examples
-解释输入、命令和输出含义
+```mermaid
+flowchart TD
+    CLI["argparse CLI"] --> Loader["data_loader.py"]
+    Loader --> Strategy["strategy.py"]
+    Strategy --> Backtest["backtest.py"]
+    Backtest --> Reporting["reporting.py"]
+    Backtest --> Charts["visualization.py"]
+    Reporting --> Results["CSV + JSON"]
+    Charts --> Assets["PNG assets"]
 ```
 
-## 模块关系
+## 模块职责
 
-```text
-cli.py
-  ├── data_loader.read_ohlcv_csv
-  ├── strategy.generate_ma_signals
-  └── backtest.run_long_only_backtest
-        ├── write_equity_curve
-        └── write_summary
-```
-
-## 主要模块说明
-
-| 模块 | 作用 |
+| 模块 | 单一职责 |
 |---|---|
-| `data_loader.py` | 读取本地 OHLCV CSV，并检查必要字段是否存在。 |
-| `strategy.py` | 根据收盘价计算短期和长期移动平均线，并生成买入、卖出或持有信号。 |
-| `backtest.py` | 根据策略信号执行简单回测，记录资金、持仓、权益和回撤。 |
-| `cli.py` | 提供命令行入口，让用户可以用一条命令运行演示流程。 |
+| `data_loader.py` | 读取 CSV，并完成字段、数值、时间和 OHLC 关系校验。 |
+| `strategy.py` | 计算移动平均线并生成交易意图信号，不处理资金。 |
+| `backtest.py` | 根据确定规则模拟现金、持仓、费用、权益、回撤和完成交易。 |
+| `reporting.py` | 把稳定字段写入 CSV 和 JSON，不改变计算结果。 |
+| `visualization.py` | 把信号和回测结果绘制成 GitHub 可读图表。 |
+| `cli.py` | 解析参数、编排模块、输出简洁用户提示。 |
 
-## 当前回测规则
+## CLI 调用流程
 
-- 初始资金默认是 10000。
-- 策略只做多，不支持做空。
-- 买入信号出现时，如果没有持仓，则用全部现金买入。
-- 卖出信号出现时，如果已有持仓，则全部卖出。
-- 默认手续费是 0.1%。
-- 回测结果只用于展示流程，不代表策略有效性。
+- `validate`：CSV → 校验摘要。
+- `signals`：CSV → 校验 → 均线 → 信号 CSV。
+- `backtest`：CSV → 校验 → 均线 → 回测 → 资金/交易/摘要文件。
+- `demo`：执行上述完整链路，并额外生成三张图表。
 
-## 安全边界
+## 数据校验流程
 
-- 不需要 API Key。
-- 不连接交易所。
-- 不读取真实账户。
-- 不执行真实下单。
-- 不上传 `data/raw/`、`data/private/`、`results/private/` 里的内容。
+1. 确认路径存在、是普通文件且非空。
+2. 确认表头含六个必需字段。
+3. 把数值字段转换为有限浮点数，拒绝 NaN 和 Infinity。
+4. 检查正价格、非负成交量和 OHLC 关系。
+5. 检查时间戳非空、不重复、按升序排列。
+6. 策略入口再检查数据行数是否满足长均线窗口。
 
-## 后续可扩展方向
+错误包含文件、行号、字段、错误值和原因，CLI 捕获预期异常后不打印冗长 traceback。
 
-- 加入更多指标，例如 RSI、布林带、成交量过滤等。
-- 增加交易明细表和更完整的统计指标。
-- 增加图表输出，例如资金曲线和回撤曲线。
-- 增加测试用例，降低后续修改时出错的概率。
-- 当命令变多时，引入 Typer 改善 CLI 体验。
+## 策略与回测关系
+
+策略只输出 `buy`、`sell`、`hold`。回测负责判断当前是否持仓，因此重复 `buy` 和空仓 `sell` 会被安全忽略。均线未形成时为 `hold`；第一次形成多头关系时发出 `buy`，从非空头关系转为空头关系时发出 `sell`。
+
+## 输出关系
+
+- `signals_sample.csv`：观察策略在每根数据上的均线与信号。
+- `equity_curve_sample.csv`：观察执行动作、现金、持仓、权益、基准和回撤。
+- `trades_sample.csv`：只保存已完成交易。
+- `backtest_summary_sample.json`：保存运行参数、核心指标、数据说明和假设。
+
+## 关键设计取舍
+
+- **单资产只做多**：减少仓位与保证金概念，让读者集中理解数据、信号和 PnL。
+- **标准库优先**：CSV、计算、CLI 和报告不依赖大型数据框架；matplotlib 仅用于图表。
+- **合成数据**：可公开、可重复、无账户隐私，但不代表真实市场。
+- **不连接交易所**：避免密钥、资金和网络副作用，保持离线可测试。
+- **稳定输出字段**：便于测试、比较和面试讲解。
