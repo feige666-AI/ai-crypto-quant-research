@@ -1,50 +1,51 @@
 # 使用示例
 
-## 运行本地回测 Demo
+以下命令均从仓库根目录运行，安装后不需要设置 `PYTHONPATH`。
 
-在 PowerShell 中进入项目目录：
+## 安装
 
 ```powershell
-cd D:\PPT\ai-crypto-quant-research
-$env:PYTHONPATH = "src"
-python -m crypto_quant_research.cli backtest --input data/sample_data.csv --output results/backtest_result_sample.csv --summary-output results/backtest_summary_sample.json
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 ```
 
-## 输入数据
+## 校验合成数据
 
-输入文件：`data/sample_data.csv`
+```powershell
+.\.venv\Scripts\python.exe -m crypto_quant_research validate --input data\sample_data.csv
+```
 
-必要字段：
+成功时会显示 300 行、起止时间、无重复、升序、字段有效、数值有效和 OHLC 有效。
 
-- `timestamp`：时间
-- `open`：开盘价
-- `high`：最高价
-- `low`：最低价
-- `close`：收盘价
-- `volume`：成交量
+## 生成信号
 
-## 输出结果
+```powershell
+.\.venv\Scripts\python.exe -m crypto_quant_research signals `
+  --input data\sample_data.csv `
+  --short-window 5 `
+  --long-window 20 `
+  --output results\signals_sample.csv
+```
 
-输出文件：
+## 运行回测
 
-- `results/backtest_result_sample.csv`
-- `results/backtest_summary_sample.json`
+```powershell
+.\.venv\Scripts\python.exe -m crypto_quant_research backtest `
+  --input data\sample_data.csv `
+  --short-window 5 `
+  --long-window 20 `
+  --initial-cash 10000 `
+  --fee-rate 0.001 `
+  --slippage-rate 0.0005 `
+  --equity-output results\equity_curve_sample.csv `
+  --trades-output results\trades_sample.csv `
+  --summary-output results\backtest_summary_sample.json
+```
 
-结果字段说明：
+## 一键生成全部展示产物
 
-| 字段 | 含义 |
-|---|---|
-| `timestamp` | 当前数据行时间 |
-| `close` | 当前收盘价 |
-| `short_ma` | 短期均线 |
-| `long_ma` | 长期均线 |
-| `signal` | 策略信号 |
-| `executed_action` | 实际执行动作 |
-| `cash` | 当前现金 |
-| `asset_qty` | 当前持仓数量 |
-| `equity` | 当前总权益 |
-| `drawdown_pct` | 当前回撤比例 |
+```powershell
+.\.venv\Scripts\python.exe -m crypto_quant_research demo
+```
 
-## 注意事项
-
-这里的样例数据和结果只用于展示流程。它们不代表真实行情，不构成投资建议，也不能用于判断真实策略收益。
+输入和输出均为 synthetic data，只用于解释流程，不代表真实行情、真实交易或未来收益。
