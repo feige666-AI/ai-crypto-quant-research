@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from crypto_quant_research.cli import build_parser, main
-from scripts.generate_sample_data import write_sample_data
+from crypto_quant_research.sample_data import write_sample_data
 
 
 def test_main_help_lists_commands() -> None:

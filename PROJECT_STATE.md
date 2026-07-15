@@ -14,8 +14,8 @@
 - 严格 CSV 字段、有限数值、价格、成交量、OHLC、时间顺序和重复校验。
 - 5/20 默认窗口的简单均线信号。
 - 单资产只做多回测，包含手续费、滑点、期末仓位、回撤、基准、暴露率、胜率和 Profit Factor。
-- 300 行固定种子 synthetic data、四份结果文件和三张 PNG。
-- 77 个 pytest 测试，核心包总覆盖率 96%。
+- 300 行固定种子 synthetic data、四份结果文件和三张 PNG；生成核心位于正式包，`scripts/` 仅保留命令入口。
+- 77 个 pytest 测试，核心包总覆盖率 97%。
 - Ruff、编译检查和 Python 3.10/3.11/3.12 GitHub Actions 配置。
 - README、基线审计、架构、回测假设、作品集、面试和简历文档。
 
@@ -23,12 +23,12 @@
 
 - 本地安装：通过。
 - `pytest -q`：77 passed。
-- 覆盖率：96%。
+- 覆盖率：97%。
 - `ruff check .`：通过。
 - `ruff format --check .`：通过。
 - `python -m compileall src`：通过。
 - 示例 `demo`：通过。
-- GitHub Actions：需在 PR 创建后观察远端运行结果。
+- GitHub Actions：首次运行暴露 Linux 无法导入顶层 `scripts` 的问题；跨平台修复已完成本地验收，最终结果以 PR #1 当前提交的检查为准。
 
 ## 已知限制
 
@@ -44,6 +44,6 @@
 
 ## 下一步优先级
 
-1. 等待人工检查 Draft PR 和 GitHub Actions。
+1. 等待人工检查 Draft PR，并确认当前修复提交的 GitHub Actions。
 2. 如继续迭代，优先增加“下一根开盘价成交”对照模型。
 3. 保持数据、策略、回测和实盘边界分离。

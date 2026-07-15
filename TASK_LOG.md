@@ -35,3 +35,25 @@
 ### 阻塞点
 
 当前无代码阻塞；远端 CI 状态需在 PR 创建后确认。
+
+## 2026-07-16：PR #1 跨平台 CI 修复
+
+### 根因
+
+GitHub Actions 的 Python 3.10、3.11、3.12 任务在测试收集阶段均报 `ModuleNotFoundError: No module named 'scripts'`。本地测试此前恰好能从仓库根目录导入顶层脚本，但 Ubuntu 安装环境不保证该导入路径。
+
+### 已完成
+
+- 将样本数据生成核心和 CLI 实现移入 `src/crypto_quant_research/sample_data.py`。
+- 保留 `scripts/generate_sample_data.py` 作为只调用正式包 `main` 的轻量入口，没有重复业务逻辑。
+- 两份测试改用 `crypto_quant_research.sample_data`，并让生成器命令测试真实执行脚本文件。
+- 本地全量测试仍为 77 项且全部通过；分支覆盖率提升到 97%。
+- `ruff check .` 与 `ruff format --check .` 均通过，生成器脚本和主 CLI 的帮助命令均正常。
+
+### 删除记录
+
+本次 CI 修复未删除任何文件。
+
+### 下一步与阻塞点
+
+推送修复提交到 `codex/portfolio-upgrade`，等待 PR #1 的 GitHub Actions 全部完成；最终状态以远端当前 head commit 的检查结果为准。

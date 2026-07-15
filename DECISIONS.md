@@ -65,3 +65,9 @@
 决策：当前执行环境的 `git clone` 被 TLS/HTTP 403 网络策略拦截后，使用已登录 GitHub CLI 的官方 API 读取最新 `main`、创建工作分支和发布 Git 对象。
 
 原因：仓库和账号权限已由 GitHub 插件验证，API 路径仍会生成以 `main` 为父提交的真实分支、commit 和 PR，不改写历史。
+
+## 2026-07-16：样本数据生成逻辑属于正式包
+
+决策：把 `generate_rows`、`write_sample_data` 和生成器 CLI 实现放在 `src/crypto_quant_research/sample_data.py`；`scripts/generate_sample_data.py` 只导入并调用正式包入口。
+
+原因：安装后的包在 Windows 和 Linux 上都有稳定导入路径，测试不再依赖仓库顶层 `scripts` 恰好出现在 `sys.path` 中，同时脚本仍保留原来的命令用法且不复制业务逻辑。

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import csv
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 from crypto_quant_research.data_loader import validate_ohlcv_csv
-from scripts.generate_sample_data import generate_rows, main, write_sample_data
+from crypto_quant_research.sample_data import generate_rows, main, write_sample_data
 
 
 def test_generation_is_reproducible() -> None:
@@ -38,11 +40,18 @@ def test_write_and_validate_sample(tmp_path: Path) -> None:
         assert len(list(csv.DictReader(file))) == 40
 
 
-def test_generator_cli(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_generator_cli(tmp_path: Path) -> None:
     output = tmp_path / "sample.csv"
-    assert main(["--rows", "25", "--seed", "3", "--output", str(output)]) == 0
+    script = Path(__file__).parents[1] / "scripts" / "generate_sample_data.py"
+    completed = subprocess.run(
+        [sys.executable, str(script), "--rows", "25", "--seed", "3", "--output", str(output)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0
     assert output.exists()
-    assert "Generated 25 synthetic rows" in capsys.readouterr().out
+    assert "Generated 25 synthetic rows" in completed.stdout
 
 
 def test_generator_cli_invalid_rows(tmp_path: Path) -> None:
