@@ -98,8 +98,8 @@ pip install -r requirements.txt
 
 在 PowerShell 中运行：
 
-```powershell
-cd D:\PPT\ai-crypto-quant-research
+git clone <repository-url>
+cd ai-crypto-quant-research
 $env:PYTHONPATH = "src"
 python -m crypto_quant_research.cli backtest --input data/sample_data.csv --output results/backtest_result_sample.csv --summary-output results/backtest_summary_sample.json
 ```
